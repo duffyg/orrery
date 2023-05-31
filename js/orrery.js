@@ -1,7 +1,7 @@
 /*
   Calculating Planetary positions in JS
 
-  Code based on old Eletric Orrery Java code
+  Code based on old Electric Orrery Java code
 
   AMN 16/08/2015
 
@@ -167,8 +167,10 @@ function DayVal(time) {
 // Calculate the [X,Y,Z] position of a single planet "planet" at
 // time "time", returning the answer in an array
 
-function PlanetPosition(planet, time) {
-
+function PlanetPosition (planet, time) {
+    // var planet_p = planet
+    // if (planet_p === 0) planet = 3
+    // if (planet_p === 3) planet = 0
     var dayval = DayVal(time);
 
     var curorb = [], pos = [];
@@ -236,7 +238,7 @@ function PlanetPosition(planet, time) {
 // Calculate a full ellipse of a single planet "planet" in "numstep"
 // steps, returning the answer in an array
 
-function PlanetEllipse(planet, numsteps) {
+function PlanetEllipse (planet, numsteps) {
 
     var E, e, a, N, w, xv, yv, v, r, i, lp;
 
@@ -272,8 +274,6 @@ function PlanetEllipse(planet, numsteps) {
     }
 
     return (orbEllipse);
-
-
-} // PlanetEllipse
+}
 
 
