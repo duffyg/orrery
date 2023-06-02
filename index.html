@@ -4,49 +4,50 @@
 <meta name="Orrery" />
 <meta name="viewport" content="width=device-width" />
 <script src="./js/orrery.js"></script>
+<link href="./css/index.css" rel="stylesheet">
 </head>
 <body class="">
 
-      
+
 <div id="container">
-    <canvas id="orrCanvas" width=750 height=750 style='border: 1px #111 solid; background-color: #333;'></canvas>
-    <canvas id='orrKeyCanvas' width=303 height=500 style='border: 1px #111 solid; background-color: #333;'></canvas>
+    <canvas id="orrCanvas" width=750 height=750 style="border: 1px #111 solid; background-color: #333;"></canvas>
+    <canvas id="orrKeyCanvas" width=303 height=500 style="border: 1px #111 solid; background-color: #333;"></canvas>
 
     <br/><br/>
     <b>Controls</b><br/>
-    <button type="button" title="Animate forwards by day" onclick='rateChanged(this.id)' id='but_ratef'>Play</button>
-    <button type="button" title="Stop" onclick='rateChanged(this.id)' id='but_ratestop'>Stop</i></button>
-    <button type="button" title="Today" onclick='changeDate("now")' id='but_stepnow'>Today</button>
+    <button type="button" class="control" title="Animate forwards by day" onclick="rateChanged(this.id)" id="but_ratef">Play</button>
+    <button type="button" class="control" title="Stop" onclick="rateChanged(this.id)" id="but_ratestop">Stop</i></button>
+    <button type="button" class="control" title="Today" onclick="changeDate('now')" id="but_stepnow">Today</button>
     <div style="display:none">
-        <button type="button" title="Animate backwards by year" onclick='rateChanged(this.id)' id='but_ratebbb'><i class="fa fa-small fa-rotate-180 fa-fast-forward"></i></button>
-        <button type="button" title="Animate backwards by month" onclick='rateChanged(this.id)' id='but_ratebb'><i class="fa fa-small fa-backward"></i></button>
-        <button type="button" title="Animate backwards by day"  onclick='rateChanged(this.id)' id='but_rateb'><i class="fa fa-small fa-rotate-180 fa-play"></i></button>
-        <!-- <button type="button" title="Stop" onclick='rateChanged(this.id)' id='but_ratestop'><i class="fa fa-small fa-stop"></i></button> -->
-        <!-- <button type="button" title="Animate forwards by day" onclick='rateChanged(this.id)' id='but_ratef'><i class="fa fa-small fa-play"></i></button> -->
-        <button type="button" title="Animate forwards by month" onclick='rateChanged(this.id)' id='but_rateff'><i class="fa fa-small fa-forward"></i></button>
-        <button type="button" title="Animate forwards by year" onclick='rateChanged(this.id)' id='but_ratefff'><i class="fa fa-small fa-fast-forward"></i></button>
+        <button type="button" title="Animate backwards by year" onclick="rateChanged(this.id)" id="but_ratebbb"><i class="fa fa-small fa-rotate-180 fa-fast-forward"></i></button>
+        <button type="button" title="Animate backwards by month" onclick="rateChanged(this.id)" id="but_ratebb"><i class="fa fa-small fa-backward"></i></button>
+        <button type="button" title="Animate backwards by day"  onclick="rateChanged(this.id)" id="but_rateb"><i class="fa fa-small fa-rotate-180 fa-play"></i></button>
+        <!-- <button type="button" title="Stop" onclick="rateChanged(this.id)" id="but_ratestop"><i class="fa fa-small fa-stop"></i></button> -->
+        <!-- <button type="button" title="Animate forwards by day" onclick="rateChanged(this.id)" id="but_ratef"><i class="fa fa-small fa-play"></i></button> -->
+        <button type="button" title="Animate forwards by month" onclick="rateChanged(this.id)" id="but_rateff"><i class="fa fa-small fa-forward"></i></button>
+        <button type="button" title="Animate forwards by year" onclick="rateChanged(this.id)" id="but_ratefff"><i class="fa fa-small fa-fast-forward"></i></button>
         <br/>
-        <button type="button" title="Skip back a year" onclick='changeDate("-y")' id='but_stepbyr'><i class="fa fa-small fa-angle-left"></i><i class="fa fa-small fa-angle-left"></i><i class="fa fa-small fa-angle-left"></i></button>
-        <button type="button" title="Skip back a month" onclick='changeDate("-m")' id='but_stepbmn'><i class="fa fa-small fa-angle-double-left"></i></button>
-        <button type="button" title="Skip back a day" onclick='changeDate("-d")' id='but_stepbdy'><i class="fa fa-small fa-angle-left"></i></button>
-        <!-- <button type="button" title="Today" onclick='changeDate("now")' id='but_stepnow'>Today</button> -->
-        <button type="button" title="Skip forward a day" onclick='changeDate("+d")' id='but_stepfdy'><i class="fa fa-small fa-angle-right"></i></button>
-        <button type="button" title="Skip forward a month" alt="Month&gt" onclick='changeDate("+m")' id='but_stepfmn'><i class="fa fa-small fa-angle-double-right"></i></button>
-        <button type="button" title="Skip forward a year" onclick='changeDate("+y")' id='but_stepfyr'><i class="fa fa-small fa-angle-right"></i><i class="fa fa-small fa-angle-right"></i><i class="fa fa-small fa-angle-right"></i></button>
+        <button type="button" title="Skip back a year" onclick="changeDate('-y')" id="but_stepbyr"><i class="fa fa-small fa-angle-left"></i><i class="fa fa-small fa-angle-left"></i><i class="fa fa-small fa-angle-left"></i></button>
+        <button type="button" title="Skip back a month" onclick="changeDate('-m')" id="but_stepbmn"><i class="fa fa-small fa-angle-double-left"></i></button>
+        <button type="button" title="Skip back a day" onclick="changeDate('-d')" id="but_stepbdy"><i class="fa fa-small fa-angle-left"></i></button>
+        <!-- <button type="button" title="Today" onclick="changeDate("now")" id="but_stepnow">Today</button> -->
+        <button type="button" title="Skip forward a day" onclick="changeDate('+d')" id="but_stepfdy"><i class="fa fa-small fa-angle-right"></i></button>
+        <button type="button" title="Skip forward a month" alt="Month&gt" onclick="changeDate('+m')" id="but_stepfmn"><i class="fa fa-small fa-angle-double-right"></i></button>
+        <button type="button" title="Skip forward a year" onclick="changeDate('+y')" id="but_stepfyr"><i class="fa fa-small fa-angle-right"></i><i class="fa fa-small fa-angle-right"></i><i class="fa fa-small fa-angle-right"></i></button>
     </div>
 
     <br/><br/>
 
     <b>Display</b><br/>
-    <input id='toggleLabel' type='checkbox' checked> Show Labels?&nbsp;&nbsp;
-    <input id='togglePluto' type='checkbox'> Show Pluto?&nbsp;&nbsp;
-    <input id='toggleGeo' type='checkbox'> Geocentric?
+    <label class="control" for="toggleLabel"><input id="toggleLabel" type="checkbox" checked> Show Labels?</label>
+    <label class="control" for="togglePluto"><input id="togglePluto" type="checkbox"> Show Pluto?</label>
+    <label class="control" for="toggleGeo"><input id="toggleGeo" type="checkbox" onclick="onClickGeo(this)"> Geocentric?</label>
     <br/>
-    <input type='radio' id='innerss' name='rad_scale', value='0.007' checked='checked'> Inner Solar System&nbsp;&nbsp;
-    <input type='radio' id='midss' name='rad_scale', value='0.030'> Visible Solar System&nbsp;&nbsp;
-    <input type='radio' id='outerss' name='rad_scale', value='0.13'> Outer Solar System
-    <!-- <input type='radio' id='midss' name='rad_scale', value='0.045'> Visible Solar System&nbsp;&nbsp;
-    <input type='radio' id='outerss' name='rad_scale', value='0.19'> Outer Solar System -->
+    <label class="control" for="innerss"><input type="radio" id="innerss" name="rad_scale", value="0.007" checked="checked"> Inner Solar System</label>
+    <label class="control" for="midss"><input type="radio" id="midss" name="rad_scale", value="0.030"> Visible Solar System</label>
+    <label class="control" for="outerss"><input type="radio" id="outerss" name="rad_scale", value="0.13"> Outer Solar System</label>
+    <!-- <input type="radio" id="midss" name="rad_scale", value="0.045"> Visible Solar System
+    <input type="radio" id="outerss" name="rad_scale", value="0.19"> Outer Solar System -->
     <br/>
     <br/>
     <a target="_blank" href="https://www1.schoolsobservatory.org/learn/astro/solsys/orrery/orr_go">Based on the electric orrery at the National Schools Observatory</a>
