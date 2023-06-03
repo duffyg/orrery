@@ -3,16 +3,16 @@
 // Planetary constants
 const NUMPLAN = 8 // Number of planets (not inc pluto)
 const SUN = 0 // An ID for the Sun
-// const MER = 1 // Planet IDs
-// const VEN = 2
-const EAR = 3
-// const MAR = 4
-// const JUP = 5
-// const SAT = 6
-// const URA = 7
-// const NEP = 8
-// const PLU = 9 // Cannot be done using orbital elements, so not implmenets
-// const MON = 10 // I may want to add the moon later, so include it for now...
+// const MERCURY = 1 // Planet IDs
+// const VENUS = 2
+const EARTH = 3
+// const MARS = 4
+// const JUPITER = 5
+// const SATURN = 6
+// const URANUS = 7
+// const NEPTUNE = 8
+// const PLUTO = 9 // Cannot be done using orbital elements, so not implemented
+// const MOON = 10 // I may want to add the moon later, so include it for now...
 
 // The names of the planets
 const PlanetName = ['Sun', 'Mercury', 'Venus', 'Earth', 'Mars', 'Jupiter', 'Saturn',
@@ -43,6 +43,16 @@ const requestAnimationFrame = window.requestAnimationFrame ||
 let spaceScale = 0.00006 // The current spacial scaling from AU to canvas pixels
 let spaceScaleDesired = 0.06 // The spacial scale to aim for
 const spaceScaleRate = 0.08 // The multiplicative change in scale per frame
+
+// offsets are for geocentric mode
+let offsetX = 0.0
+let offsetY = 0.0
+// offset targets are for initial move to geocentric position
+let offsetXTarget = 0.0
+let offsetYTarget = 0.0
+const offsetFrames = 100 // how many frames to make the move
+let offsetCount = offsetFrames
+let savedButton = ''
 
 let timeScale = 0.0 // Scaling from "real" time to displayed time (default to stationary).
 
@@ -85,7 +95,7 @@ function time2date (startTime, startDate) {
 // ==========================================
 // Handlers for buttons
 function rateChanged (buttid) {
-    // Enable all the buttons (the one that has beeb selected will be disabled below)
+    // Enable all the buttons (the one that has been selected will be disabled below)
     document.getElementById('but_ratebbb').disabled = false
     document.getElementById('but_ratebb').disabled = false
     document.getElementById('but_rateb').disabled = false
@@ -128,8 +138,9 @@ function rateChanged (buttid) {
     startDate.setTime(dispDate.getTime())
     startTime = (new Date().getTime())
 
-    // Display/enable all the appropraite buttons
+    // Display/enable all the appropriate buttons
     document.getElementById(buttid).disabled = true
+    savedButton = buttid
 
     // If anything other than "stop", disable all the "step" buttons
     const stepst = (newrate !== 0)
@@ -254,18 +265,27 @@ let flgGeo // Geocentric view?
 // eslint-disable-next-line no-unused-vars
 function onClickGeo (elem) {
     const geo = document.getElementById('toggleGeo')
-    if (geo.checked) console.log('geo checked')
-    else console.log('geo unchecked')
+    if (geo.checked) {
+        rateChanged('but_ratestop')
+        const orbEarth = PlanetPosition(EARTH, dispDate)
+        offsetXTarget = orbEarth[X]
+        offsetYTarget = orbEarth[Y]
+    }
+    // else {
+    //     offsetXTarget = 0.0
+    //     offsetYTarget = 0.0
+    // }
+    offsetCount = 0
 }
 // ==========================================
 // Drawing functions
 
 // ----------------------------------------------------
 // Draw all the orbitals
-function drawOrbitals (plutoFlag) {
+function drawOrbitals () {
     let p, np
-    const orbear = PlanetPosition(EAR, dispDate)
-    if (plutoFlag) np = NUMPLAN + 1
+    const orbEarth = PlanetPosition(EARTH, dispDate)
+    if (flgPluto) np = NUMPLAN + 1
     else np = NUMPLAN
     for (p = 1; p <= np; p++) { // 0 is for Sun, +1 is for Pluto
         orrContext.beginPath()
@@ -281,14 +301,12 @@ function drawOrbitals (plutoFlag) {
         else orrContext.lineWidth = '2'
         orrContext.strokeStyle = orbPathCols[p]
 
-        let orbPos = getOrbPos(p, orbPath[p][0], orbear)
+        let orbPos = getOrbPos(p, orbPath[p][0], orbEarth)
 
-        // AU2pix(orbPath[p][0], pos);
         AU2pix(orbPos, pos)
         orrContext.moveTo(pos[X], pos[Y])
         for (i = 1; i < orbPathStep; i++) {
-            orbPos = getOrbPos(p, orbPath[p][i], orbear)
-            // AU2pix(orbPath[p][i], pos);
+            orbPos = getOrbPos(p, orbPath[p][i], orbEarth)
             AU2pix(orbPos, pos)
             orrContext.lineTo(pos[X], pos[Y])
         }
@@ -296,53 +314,50 @@ function drawOrbitals (plutoFlag) {
         orrContext.stroke()
     }
 }
-function getOrbPos (p, orbpos, orbear) {
-    if (!flgGeo) return orbpos
-    const pos = [orbpos[0], orbpos[1], orbpos[2]]
-    if (p !== EAR) {
-        pos[0] = pos[0] - orbear[0]
-        pos[1] = pos[1] - orbear[1]
-        pos[2] = pos[2] - orbear[2]
+function getOrbPos (p, orbPos, orbEarth) {
+    if (!flgGeo) return orbPos
+    const pos = [orbPos[X], orbPos[Y]]
+    if (p !== EARTH) {
+        pos[X] = pos[X] - orbEarth[X]
+        pos[Y] = pos[Y] - orbEarth[Y]
     }
     return pos
 }
 
 // ----------------------------------------------------
 // Draw all the planets
-function drawPlanets (plutoFlag) {
+function drawPlanets () {
     let p; let np; let r; const posSun = []
-    let orbpos; const pos = []
-    const orbear = PlanetPosition(EAR, dispDate)
-    const orbsun = PlanetPosition(SUN, dispDate)
-    AU2pix(orbsun, posSun)
-    // orbpos = PlanetPosition(SUN, dispDate);
-    // AU2pix(orbpos, posSun);
-    if (plutoFlag) np = NUMPLAN + 1
+    let orbPos; const pos = []
+    const orbSun = PlanetPosition(SUN, dispDate)
+    AU2pix(orbSun, posSun)
+    if (flgPluto) np = NUMPLAN + 1
     else np = NUMPLAN
     for (p = np; p >= 0; p--) { // 0 is for Sun, +1 is for Pluto. Draw the Sun last
         orrContext.beginPath()
-        orbpos = PlanetPosition(p, dispDate)
-        if (flgGeo) {
+        orbPos = PlanetPosition(p, dispDate)
+        if (offsetCount < offsetFrames) {
+            orbPos[X] = orbPos[X] - offsetX
+            orbPos[Y] = orbPos[Y] - offsetY
+        }
+        else if (flgGeo) {
             if (p === SUN) {
-                orbpos[0] = 0 - orbear[0]
-                orbpos[1] = 0 - orbear[1]
-                orbpos[2] = 0 - orbear[2]
+                orbPos[X] = 0.0 - offsetX
+                orbPos[Y] = 0.0 - offsetY
             }
-            else if (p === EAR) {
-                orbpos[0] = 0
-                orbpos[1] = 0
-                orbpos[2] = 0
+            else if (p === EARTH) {
+                orbPos[X] = 0.0
+                orbPos[Y] = 0.0
             }
             else {
-                orbpos[0] = orbpos[0] - orbear[0]
-                orbpos[1] = orbpos[1] - orbear[1]
-                orbpos[2] = orbpos[2] - orbear[2]
+                orbPos[X] = orbPos[X] - offsetX
+                orbPos[Y] = orbPos[Y] - offsetY
             }
         }
-        AU2pix(orbpos, pos)
+        AU2pix(orbPos, pos)
 
         // Calculate a radius that scales very roughly with object radius, but also scales as we zoom in or out.
-        // The minimum radius is set tso that everthing (even Pluto) is always visible
+        // The minimum radius is set so that everthing (even Pluto) is always visible
         r = 1.5 + (Math.sqrt(PlanetRadius[p]) / (100.0 * Math.sqrt(spaceScale)))
         // However make sure that the Sun stays fixed relative to the scale (albeit quite large)
         if (p === 0) {
@@ -384,12 +399,6 @@ function drawKey () {
     // Sun (in the middle at the top. no line)
     x = wid / 2
     y = chgt / 2
-    // orrKeyCont.beginPath();
-    // orrKeyCont.lineWidth="2"
-    // orrKeyCont.strokeStyle = orbPathCols[SUN];
-    // orrKeyCont.moveTo(x-(cwid/2),y);
-    // orrKeyCont.lineTo(x,y);
-    // orrKeyCont.stroke();
 
     orrKeyCont.beginPath()
     orrKeyCont.arc(x - (cwid / 4), y, 6, 0, 2.0 * Math.PI)
@@ -493,12 +502,36 @@ function drawAnim () {
         }
     }
 
+    const orbEarth = PlanetPosition(EARTH, dispDate)
+    offsetX = orbEarth[X]
+    offsetY = orbEarth[Y]
+    // override the offset when moving into or out of geocentric position
+    if (offsetCount < offsetFrames) {
+        if (flgGeo) {
+            offsetX = offsetXTarget * ((offsetCount + 1) / offsetFrames)
+            offsetY = offsetYTarget * ((offsetCount + 1) / offsetFrames)
+        }
+        else {
+            offsetX = offsetX * ((offsetFrames - offsetCount) / offsetFrames)
+            offsetY = offsetY * ((offsetFrames - offsetCount) / offsetFrames)
+        }
+        offsetCount++
+        // if we've arrived at the geocentric/heliocentric position, restart the orrery
+        if (offsetCount === offsetFrames) {
+            rateChanged(savedButton)
+            if (!flgGeo) {
+                offsetX = 0.0
+                offsetY = 0.0
+            }
+        }
+    }
+
     // ==== Draw everything using current scale and date ====
     flgPluto = document.getElementById('togglePluto').checked
     flgGeo = document.getElementById('toggleGeo').checked
     flgLabel = document.getElementById('toggleLabel').checked
-    drawOrbitals(flgPluto)
-    drawPlanets(flgPluto)
+    drawOrbitals()
+    drawPlanets()
 
     requestAnimationFrame(function () {
         drawAnim()
