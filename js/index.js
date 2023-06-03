@@ -395,13 +395,16 @@ function drawPlanets () {
 function drawKey () {
     const wid = orrKeyCanv.width
     const hgt = orrKeyCanv.height
-    const cwid = wid / 2
-    const chgt = hgt / 6
+    // const cwid = wid / 2
+    const cwid = wid
+    // const chgt = hgt / 6
+    const chgt = hgt / 10
 
-    let x, y
+    // let x, y
     // Sun (in the middle at the top. no line)
-    x = wid / 2
-    y = chgt / 2
+    // x = wid / 2
+    const x = cwid * 2 / 4
+    let y = chgt / 2
 
     orrKeyCont.beginPath()
     orrKeyCont.arc(x - (cwid / 4), y, 6, 0, 2.0 * Math.PI)
@@ -416,12 +419,13 @@ function drawKey () {
     orrKeyCont.textAlign = 'start'
     orrKeyCont.fillText(PlanetName[SUN], x + 4, y + 7)
 
-    x = cwid / 2
+    // x = cwid / 2
+    // x = cwid * 2 / 3
     y = y + chgt
     for (let p = 1; p <= NUMPLAN + 1; p++) {
-        if (p === (NUMPLAN + 1)) { // Pluto goes in the middle
-            x = cwid
-        }
+        // if (p === (NUMPLAN + 1)) { // Pluto goes in the middle
+        //     x = cwid
+        // }
         orrKeyCont.beginPath()
         orrKeyCont.lineWidth = '2'
         orrKeyCont.strokeStyle = orbPathCols[p]
@@ -442,11 +446,11 @@ function drawKey () {
         orrKeyCont.textAlign = 'start'
         orrKeyCont.fillText(PlanetName[p], x + 4, y + 7)
 
-        x = x + cwid
-        if (x >= wid) {
-            x = cwid / 2
-            y = y + chgt
-        }
+        // x = x + cwid
+        // if (x >= wid) {
+        // x = cwid / 2
+        y = y + chgt
+        // }
     }
 }
 
