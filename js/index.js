@@ -94,7 +94,7 @@ function time2date (startTime, startDate) {
 
 // ==========================================
 // Handlers for buttons
-function rateChanged (buttid) {
+function rateChanged (buttid, skipSave) {
     // Enable all the buttons (the one that has been selected will be disabled below)
     document.getElementById('but_ratebbb').disabled = false
     document.getElementById('but_ratebb').disabled = false
@@ -140,7 +140,7 @@ function rateChanged (buttid) {
 
     // Display/enable all the appropriate buttons
     document.getElementById(buttid).disabled = true
-    savedButton = buttid
+    if (!skipSave) savedButton = buttid
 
     // If anything other than "stop", disable all the "step" buttons
     const stepst = (newrate !== 0)
@@ -260,21 +260,19 @@ const orbLabelCols = ['#ffff00', // Sun
 
 let flgLabel // Do we show labels?
 let flgPluto // Do we show Pluto?
-let flgGeo // Geocentric view?
+let flgGeo = false // Geocentric view?
 
 // eslint-disable-next-line no-unused-vars
 function onClickGeo (elem) {
     const geo = document.getElementById('toggleGeo')
+    const skipSave = true
+    rateChanged('but_ratestop', skipSave)
     if (geo.checked) {
-        rateChanged('but_ratestop')
         const orbEarth = PlanetPosition(EARTH, dispDate)
         offsetXTarget = orbEarth[X]
         offsetYTarget = orbEarth[Y]
     }
-    // else {
-    //     offsetXTarget = 0.0
-    //     offsetYTarget = 0.0
-    // }
+    flgGeo = geo.checked
     offsetCount = 0
 }
 // ==========================================
@@ -315,11 +313,11 @@ function drawOrbitals () {
     }
 }
 function getOrbPos (p, orbPos, orbEarth) {
-    if (!flgGeo) return orbPos
+    if (!flgGeo && offsetCount === offsetFrames) return orbPos
     const pos = [orbPos[X], orbPos[Y]]
     if (p !== EARTH) {
-        pos[X] = pos[X] - orbEarth[X]
-        pos[Y] = pos[Y] - orbEarth[Y]
+        pos[X] = pos[X] - offsetX
+        pos[Y] = pos[Y] - offsetY
     }
     return pos
 }
@@ -374,13 +372,18 @@ function drawPlanets () {
         // Put a label if this is a decent distance from the Sun
         if (flgLabel) {
             let diff
-            if (p !== SUN) {
+            if ((!flgGeo && p !== SUN) || (flgGeo && p !== EARTH)) {
                 diff = ((pos[X] - posSun[X]) * (pos[X] - posSun[X])) + ((pos[Y] - posSun[Y]) * (pos[Y] - posSun[Y]))
                 diff = Math.sqrt(diff)
             }
             else diff = orrCanvas.width
-            if (diff > (orrCanvas.width / 11.5)) {
-                orrContext.font = '14px Arial'
+            // always show both Earth and Sun when moving from/to geocentric
+            if (offsetCount < offsetFrames && (p === SUN || p === EARTH)) {
+                diff = orrCanvas.width
+            }
+            // if (diff > (orrCanvas.width / 11.5)) {
+            if (diff > (orrCanvas.width / 18.0)) {
+                orrContext.font = '12px Arial'
                 orrContext.fillStyle = orbLabelCols[p]
                 orrContext.textAlign = 'center'
                 orrContext.fillText(PlanetName[p], pos[X], pos[Y] - (1.2 * r))
@@ -528,7 +531,7 @@ function drawAnim () {
 
     // ==== Draw everything using current scale and date ====
     flgPluto = document.getElementById('togglePluto').checked
-    flgGeo = document.getElementById('toggleGeo').checked
+    // flgGeo = document.getElementById('toggleGeo').checked
     flgLabel = document.getElementById('toggleLabel').checked
     drawOrbitals()
     drawPlanets()
